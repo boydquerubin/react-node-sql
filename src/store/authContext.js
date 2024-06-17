@@ -4,29 +4,33 @@ const initialState = {
   userId: null,
   token: null,
   exp: null,
-  username: null
+  username: null,
 };
 
 const AuthContext = createContext();
 
 const getLocalData = () => {
   const storedToken = localStorage.getItem("token");
-  const storedExp = localStorage.getItem("exp");
+  const storedExp = parseInt(localStorage.getItem("exp"), 10);
   const storedId = localStorage.getItem("userId");
   const storedName = localStorage.getItem("username");
 
-  let remainingTime = storedExp - new Date().getTime()
-  if(remainingTime < 0) {
-    localStorage.clear()
-    return null
+  if (!storedToken || !storedExp || !storedId || !storedName) {
+    localStorage.clear();
+    return null;
   }
-  //TODO CALCULATE REMAINING TIME FROM THE EXP DATE.
+
+  const remainingTime = storedExp - new Date().getTime();
+  if (remainingTime < 0) {
+    localStorage.clear();
+    return null;
+  }
 
   return {
     token: storedToken,
     exp: storedExp,
     userId: storedId,
-    username: storedName
+    username: storedName,
   };
 };
 
@@ -67,5 +71,4 @@ const AuthContextProvider = (props) => {
   );
 };
 
-export default AuthContext;
-export { AuthContextProvider };
+export { AuthContext, AuthContextProvider };

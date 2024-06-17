@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import axios from "axios";
-import AuthContext from "../store/authContext";
+import { AuthContext, AuthContextProvider } from "../store/authContext";
 
 const Auth = () => {
   const [username, setUsername] = useState("");
@@ -10,7 +10,7 @@ const Auth = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    
+
     console.log("submitHandler called");
   };
 

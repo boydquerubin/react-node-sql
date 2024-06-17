@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { AuthContext } from "../store/authContext"; // Ensure the path matches your project structure
-
+import { AuthContext, AuthContextProvider } from "../store/authContext";
 import logo from "../assets/dm-logo-white.svg";
 
 const Header = () => {

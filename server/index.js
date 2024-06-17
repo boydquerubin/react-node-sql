@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { register, login } = require("./controllers/auth.js");
@@ -10,7 +11,7 @@ const {
 } = require("./controllers/posts.js");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4005;
 
 // Middleware
 app.use(express.json());
