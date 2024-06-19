@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { isAuthenticated } = require("./middleware/isAuthenticated.js"); // Adjust path as necessary
 const express = require("express");
 const cors = require("cors");
 const { register, login } = require("./controllers/auth.js");
@@ -11,7 +12,7 @@ const {
 } = require("./controllers/posts.js");
 
 const app = express();
-const PORT = process.env.PORT || 4005;
+const PORT = process.env.PORT || 4004;
 
 // Middleware
 app.use(express.json());
@@ -31,16 +32,16 @@ app.get("/userposts/:userId", (req, res) => {
 });
 
 // Add a new post
-app.post("/posts", addPost);
+app.post("/posts", isAuthenticated, addPost);
 
 // Edit an existing post
-app.put("/posts/:id", (req, res) => {
+app.put("/posts/:id", isAuthenticated, (req, res) => {
   const { id } = req.params;
   editPost(req, res, id);
 });
 
 // Delete a post
-app.delete("/posts/:id", (req, res) => {
+app.delete("/posts/:id", isAuthenticated, (req, res) => {
   const { id } = req.params;
   deletePost(req, res, id);
 });

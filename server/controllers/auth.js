@@ -15,22 +15,13 @@ const authenticateUser = (username, password) => {
 
 module.exports = {
   login: async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      console.log("Logging in with:", username, password); // Log the input for debugging
-      if (authenticateUser(username, password)) {
-        const userId = 123; // Replace with actual user ID from database
-        const token = createToken(username, userId);
-        console.log("Token generated:", token); // Check the token output
-        res.status(200).send({ token });
-      } else {
-        console.log("Authentication failed for:", username); // Log failed attempts
-        res.status(401).send({ message: "Authentication failed" });
-      }
-    } catch (error) {
-      console.log("Login error:", error);
-      res.status(500).send({ message: "Server error" });
-    }
+    let { username, password } = req.body;
+    const token = createToken(username, password);
+    res.status(200).send(token);
+  },
+  register: async (req, res) => {
+    console.log("register");
+    res.sendStatus(200);
   },
 
   register: async (req, res) => {
