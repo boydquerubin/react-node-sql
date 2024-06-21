@@ -1,38 +1,81 @@
 const jwt = require("jsonwebtoken");
+const { User } = require("../models/user");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const SECRET = process.env.SECRET;
 
-// Function to create a JWT token
-const createToken = (username, userId) => {
-  return jwt.sign({ username, userId }, SECRET, { expiresIn: "2 days" });
-};
-
-// Sample authentication function (you need to implement it according to your app's requirements)
-const authenticateUser = (username, password) => {
-  // Placeholder: replace with real authentication logic
-  return username === "admin" && password === "password"; // Example condition
+let createToken = (username, id) => {
+  return jwt.sign({ username, id }, SECRET, { expiresIn: "2 days" });
 };
 
 module.exports = {
   login: async (req, res) => {
-    let { username, password } = req.body;
-    const token = createToken(username, password);
-    res.status(200).send(token);
+    try {
+      let { username, password } = req.body;
+      let foundUser = await User.findOne({ where: { username: username } });
+      if (foundUser) {
+        const isAuthenticated = bcrypt.compareSync(
+          password,
+          foundUser.hashedPass
+        );
+        if (isAuthenticated) {
+          let token = createToken(
+            foundUser.dataValues.username,
+            foundUser.dataValues.id
+          );
+          const exp = Date.now() + 1000 * 60 * 60 * 48;
+          console.log(foundUser);
+          const data = {
+            username: foundUser.dataValues.username,
+            userId: foundUser.dataValues.id,
+            token: token,
+            exp: exp,
+          };
+          res.status(200).send(data);
+        } else {
+          res.status(400).send("Password is incorrect");
+        }
+      } else {
+        res.status(400).send("User does not exist.");
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(400).send(error);
+    }
   },
-  register: async (req, res) => {
-    console.log("register");
-    res.sendStatus(200);
-  },
-
   register: async (req, res) => {
     try {
-      const { username, password } = req.body;
-      // Placeholder for registration logic that might create a user id
-      const userId = 123; // Example user ID after successful registration
-      const token = createToken(username, userId); // Create token with username and user ID
-      res.status(201).send({ token });
+      let { username, password } = req.body;
+      let foundUser = await User.findOne({ where: { username: username } });
+      console.log(foundUser);
+      if (foundUser) {
+        res.status(400).send("Username is Taken!");
+      } else {
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(password, salt);
+
+        let newUser = await User.create({
+          username: username,
+          hashedPass: hash,
+        });
+        console.log(newUser);
+        let token = createToken(
+          newUser.dataValues.username,
+          newUser.dataValues.id
+        );
+        const exp = Date.now() + 1000 * 60 * 60 * 48;
+
+        const data = {
+          username: newUser.dataValues.username,
+          userId: newUser.dataValues.id,
+          token: token,
+          exp: exp,
+        };
+        res.status(200).send(data);
+      }
     } catch (error) {
-      res.status(500).send({ message: "Server error" });
+      console.error(error);
+      res.status(400).send(error);
     }
   },
 };

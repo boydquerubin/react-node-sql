@@ -10,9 +10,15 @@ const {
   editPost,
   deletePost,
 } = require("./controllers/posts.js");
+const sequelize = require("./util/database");
+const { User } = require("./models/user");
+const { Post } = require("./models/post");
 
 const app = express();
 const PORT = process.env.PORT || 4004;
+
+User.hasMany(Post);
+Post.belongsTo(User);
 
 // Middleware
 app.use(express.json());
@@ -46,5 +52,12 @@ app.delete("/posts/:id", isAuthenticated, (req, res) => {
   deletePost(req, res, id);
 });
 
-// Start the server
-app.listen(PORT, () => console.log(`App running on Port ${PORT}`));
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Database synchronized.");
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("Failed to synchronize database:", err);
+  });
